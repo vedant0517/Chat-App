@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.py[cod]
+
+# Local runtime data
+chat_database.db
