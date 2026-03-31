@@ -1,129 +1,144 @@
-# 💬 Real-Time Chat Application
-**College Mini Project — Python Socket Programming + Tkinter GUI**
+# Real-Time Chat Application
 
----
+Python socket-based chat application with a Tkinter desktop client, SQLite-backed authentication, multi-room messaging, admin controls, and a polished cyber-style UI.
 
-## 📁 File Structure
+## Overview
 
-```
+This project includes:
+
+- `server.py` for the threaded TCP chat server
+- `client_gui.py` for the desktop chat client
+- `database.py` for SQLite persistence
+
+The app supports registration and login, public room chat, direct messages, typing indicators, read receipts, file sharing, chat history, and admin moderation commands.
+
+## Features
+
+- Multi-client chat over TCP sockets
+- SQLite-backed user accounts and persistent chat history
+- Room-based messaging with `#general` as the default room
+- Private messaging with `/msg`
+- Password changes with `/passwd`
+- Typing indicators and read receipts
+- File sharing up to 5 MB
+- Inline image preview when `Pillow` is installed
+- Search inside chat with `Ctrl+F`
+- Dark/light theme toggle
+- Admin commands for kick, ban, unban, log viewing, and clearing history
+- Client-side SHA-256 password hashing
+- Simple XOR message obfuscation for chat payloads
+
+## Project Structure
+
+```text
 Chat Application/
-├── server.py          ← Server (run this first)
-├── client_gui.py      ← GUI Client (run multiple instances)
-├── database.py        ← SQLite database layer (auto-creates chat_database.db)
-├── chat_database.db   ← Auto-created: stores users, messages, banned list
-└── README.md
+|-- server.py
+|-- client_gui.py
+|-- database.py
+|-- chat_database.db   # auto-created at runtime
+|-- .gitignore
+`-- README.md
 ```
 
-> **Note:** `users.json` and `chat_history.json` are legacy files from an older version.
-> The app now uses SQLite (`chat_database.db`) for all persistence.
+## Requirements
 
----
+- Python 3.10 or newer
+- Standard library modules only for the core app
 
-## 🚀 How to Run
+Optional packages:
 
-### Step 1 — Start the Server
+- `Pillow` for inline image previews and tray icon image support
+- `pystray` for minimize-to-tray support
 
-Open a terminal and run:
+Install the optional packages with:
+
+```bash
+pip install pillow pystray
+```
+
+## Quick Start
+
+### 1. Start the server
 
 ```bash
 cd "d:\Project\Chat Application"
 python server.py
 ```
 
-Expected output:
-```
-==================================================
-  CYBER CHAT SERVER v3.0
-  Listening on 0.0.0.0:12345
-  Connect from clients using: 127.0.0.1:12345
-  Admin user: 'admin'
-==================================================
-```
+Default server settings:
 
-### Step 2 — Launch Client(s)
+- Host: `0.0.0.0`
+- Port: `12345`
+- Admin username: `admin`
 
-Open one or more **separate terminals** and run:
+### 2. Launch one or more clients
+
+Open a separate terminal for each client:
 
 ```bash
 python client_gui.py
 ```
 
-- First time: click **Register** to create an account
-- Next time: click **Login**
+Use the client to:
 
-> Launch multiple clients to test messaging between users.
+- register a new user account
+- log in with an existing account
+- chat with other connected users in the same room
 
----
+## Commands
 
-## 💡 Commands (type in the message box)
+Type these in the client message box:
 
-| Command | Action |
+| Command | Description |
 |---|---|
-| `/msg username text` | Send a private message to a user |
-| `/join #room` | Switch to a different chat room |
-| `/users` | Refresh the active users list |
+| `/msg <username> <message>` | Send a private message |
+| `/join #room` | Switch to another room |
+| `/users` | Refresh the online user list |
 | `/passwd <new_password>` | Change your password |
 | `/help` | Show available commands |
-| `/exit` | Disconnect and close the app |
-| `/kick <user>` | (admin) Kick a user |
-| `/ban <user>` | (admin) Ban a user |
-| `/unban <user>` | (admin) Unban a user |
-| `/log` | (admin) View connection log |
+| `/exit` | Disconnect from the server |
+| `/kick <user>` | Admin: disconnect a user |
+| `/ban <user>` | Admin: ban a user |
+| `/unban <user>` | Admin: remove a ban |
+| `/log` | Admin: view recent connection log entries |
+| `/clearall` | Admin: clear stored chat history for everyone |
 
----
+## Persistence
 
-## ✨ Features
+The application uses SQLite and creates `chat_database.db` automatically.
 
-| Feature | Details |
-|---|---|
-| **Multi-client** | Server handles unlimited simultaneous clients using threads |
-| **Authentication** | Register/Login with SHA-256 hashed passwords stored in SQLite |
-| **Broadcast** | Messages sent to all connected users in the same room |
-| **Rooms** | `/join #room` to switch rooms; messages are isolated per room |
-| **Private messaging** | `/msg username text` syntax |
-| **Chat history** | Last 50 messages loaded when you join |
-| **Active users sidebar** | Live-updated list of online users in current room |
-| **Encryption** | XOR cipher applied to all message payloads |
-| **Dark / Light mode** | Toggle with the `[ ☀ LIGHT ]` button in the header |
-| **Emoji picker** | Click 😊 in the input bar |
-| **Typing indicators** | Shows when other users are typing |
-| **Read receipts** | ✓ upgrades to ✓✓ when the recipient reads your message |
-| **File sharing** | Attach files up to 5MB; images preview inline |
-| **Search** | Ctrl+F to search in chat history |
-| **Admin controls** | Kick, ban, unban users; view connection log |
-| **Rate limiting** | 3 failed login attempts per IP per 60s → lockout |
-| **Disconnect handling** | Graceful join/leave notifications; GUI stays stable |
+Stored data includes:
 
----
+- registered users
+- chat history
+- banned users
 
-## 🛡️ Security Notes
+You can override the database file location with the `CHATAPP_DB_FILE` environment variable.
 
-- Passwords are **SHA-256 hashed** on the client before being sent
-- Messages are **XOR-encrypted** in transit (symmetric key shared between client files)
-- Banned users are stored in SQLite and cannot log in even after reconnecting
-- For production: use TLS/SSL and bcrypt — this is a college demo project
+## Notes
 
----
+- The client connects to `127.0.0.1:12345` by default.
+- If you change the port, update both [server.py](D:/Project/Chat%20Application/server.py) and [client_gui.py](D:/Project/Chat%20Application/client_gui.py).
+- The encryption used here is a simple XOR-based scheme intended for a college/demo project, not production security.
+- Passwords are hashed with SHA-256 before being sent.
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 | Problem | Fix |
 |---|---|
-| `Connection refused` | Make sure `server.py` is running first |
-| `User already logged in` | Close duplicate client window |
-| `Username taken` | Choose a different username |
-| GUI freezes | Should not happen; uses threading + `root.after()` |
-| Port in use | Change `PORT = 12345` in both `server.py` and `client_gui.py` |
-| File open fails on Linux/Mac | Fixed — uses `xdg-open` / `open` on non-Windows |
+| `Connection refused` | Start `server.py` before opening the client |
+| Port already in use | Change `PORT` in both the server and client files |
+| Image previews do not appear | Install `Pillow` |
+| Minimize-to-tray does not work | Install both `Pillow` and `pystray` |
+| Login keeps failing after repeated attempts | Wait for the rate-limit window to reset |
 
----
+## Tech Stack
 
-## 🔧 Tech Stack
-
-- **Python 3.10+** (no extra packages required for core features)
-- `socket` — TCP networking
-- `threading` — concurrent client handling
-- `sqlite3` — persistent user auth and message history
-- `tkinter` — cross-platform GUI
-- `json` / `hashlib` — serialization and password hashing
-- `pystray` + `Pillow` — optional system tray support (install with pip if desired)
+- Python
+- `socket`
+- `threading`
+- `tkinter`
+- `sqlite3`
+- `hashlib`
+- `json`
+- `pystray` and `Pillow` for optional GUI enhancements
